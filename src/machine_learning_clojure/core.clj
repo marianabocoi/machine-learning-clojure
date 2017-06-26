@@ -1,8 +1,14 @@
 (ns machine-learning-clojure.core
   (:gen-class)
-  (:use clojure.core.matrix)
+  (:use clojure.core.matrix
+        [incanter.charts :only [xy-plot add-points]]
+        [incanter.core   :only [view]])
   (:require [clatrix.core :as cl]
             [clojure.core.matrix.operators :as M]))
+
+;; Examples from
+;; Clojure for Machine Learning
+;; by Akhil Wali
 
 (defn -main
   "I don't do a whole lot ... yet."
@@ -22,7 +28,7 @@
 (defn id-mat
   "Creates an identity matrix of n x n size"
   [n]
-  (let [init (square-mat :clarix n 0)
+  (let [init (square-mat :clatrixn 0 )
         identity-f (fn [i j n]
                      (if (= i j) 1 n))]
     (cl/map-indexed identity-f init)))
@@ -69,7 +75,9 @@
      (reduce mat-add M))))
 
 (comment
-  ;;Chapter1 - Generating matrixes
+
+  ;;Chapter1 - Representing matrices
+
   (matrix [[0 1 2] [3 4 5]])
 
   (cl/matrix [0 1])
@@ -98,7 +106,7 @@
 
   (column-count (cl/matrix [0 1 2]))
 
-
+ 
   (def A (cl/matrix [[0 1 2] [3 4 5]]))
 
   (cl/get A 1 1)
@@ -117,6 +125,7 @@
   ;;column
   (pm (cl/map-indexed (fn [i j m] j) A))
 
+  ;;Chapter2 - Generating matrices
   (square-mat 2 1)
 
   ;;error?!?!?
@@ -136,7 +145,7 @@
 
   (rand-computed-mat 3 2)
 
-  ;;Chapter2 - Adding matrixes
+  ;;Chapter3 - Adding matrixes
 
   ;;expected error
   (+ (matrix [[0 1]]) (matrix [[0 1]]))
@@ -153,7 +162,7 @@
 
   (M/== C A)
 
-  ;;Chapter3 - Multiply matrixes
+  ;;Chapter4 - Multiply matrixes
 
   (def A (cl/matrix [[10 20 30] [20 30 40]]))
 
@@ -179,7 +188,7 @@
 
   ;;matrix-vector multiplication
 
-  ;;Chapter4 - Transpose and Invert
+  ;;Chapter 1.5 - Transpose and Invert
 
   (def A (matrix [[1 2 3] [4 5 6]]))
 
@@ -207,27 +216,6 @@
   (pm (inverse A))
 
   ;;strange
-  (M/* (inverse A) A)
+  (mmul (inverse A) A)
 
   )
-
-(defn add-ones "Add an X[0] column of all 1's to use with Theta[0]"
-  [x]
-  (let [width (first (cl/size x))
-        new-row (vec (repeat width 1))
-        new-mat (cl/matrix new-row)]
-    (cl/hstack new-mat x)))
-
-(defn linear-regression [x Y a i]
-  (let [m (first (cl/size Y))
-        X (add-ones x)]
-    (loop [Theta (cl/zeros 1 (second (cl/size X))) i i]
-      (if (zero? i)
-        Theta
-        (let [ans (cl/* X (cl/t Theta))
-              diffs (cl/- ans Y)
-              dx (cl/* (cl/t diffs) X)
-              adjust-x (cl/* dx (/ a m))]
-          (recur (cl/- Theta adjust-x)
-                 (dec i)))))))
-
